@@ -56,7 +56,7 @@
   .missions-panel, .abilities-panel{ background: rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius);
     padding:12px 14px; margin-bottom:14px;}
   .panel-title{ font-size:12px; letter-spacing:0.05em; color:#f2e4c0; font-weight:700; margin-bottom:8px; text-transform:uppercase;}
-  .mission-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(230px,1fr)); gap:8px;}
+  .mission-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:8px;}
   .mission-card{ background:var(--panel); color:var(--ink); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.4;}
   .mission-card .m-cat{font-size:10px; color:var(--ink-soft); text-transform:uppercase; font-weight:700;}
   .mission-card .m-name{font-weight:700; font-size:13px; margin:2px 0;}
@@ -169,7 +169,7 @@
         <li><b>Chain of Custody:</b> rango 1→2→3→4... en ese orden, cada eslabón adyacente al anterior, naciones distintas. Mínimo 4. Puede haber varias cadenas a la vez, pero un agente no puede estar en dos cadenas.</li>
         <li><b>Casillas redactadas:</b> nunca se puede archivar ahí, pero cuentan como ocupadas para misiones de espacio.</li>
         <li><b>Misiones:</b> 4 activas (1 por categoría) toda la partida. El 1º en cumplirla anota el puntaje impreso; el 2º, la mitad redondeada arriba.</li>
-        <li><b>Habilidades:</b> al repartir las 4 misiones, cada una queda ligada a 1 habilidad específica (sorteada al inicio y visible desde el principio). Al cumplir esa misión (1º o 2º puesto) desbloqueas justo esa habilidad. Cada uso cuesta puntos, y el costo sube cada vez que CUALQUIER jugador la usa.</li>
+        <li><b>Habilidades:</b> al repartir las 4 misiones, cada una queda ligada a 1 habilidad específica (sorteada al inicio y visible desde el principio, con su efecto y costo). Al cumplir esa misión (1º o 2º puesto) desbloqueas justo esa habilidad. Solo se puede activar <b>1 habilidad por turno</b>, y cada uso cuesta puntos que suben cada vez que CUALQUIER jugador la usa.</li>
         <li><b>Training Die (una de las 15 habilidades):</b> al reclutar, aparta 1 agente en entrenamiento en vez de archivarlo. En tu próximo Quemar la Red se re-tira solo y pasa a tu cola para archivar. Máximo 1 a la vez.</li>
         <li><b>Última ronda:</b> se activa si la reserva no alcanza para reabastecer el mercado, o si alguien llena su dossier. Se juega hasta igualar turnos.</li>
       </ul>
@@ -439,6 +439,87 @@ function hasTripleAgent(b){
   findAllChains(b).forEach(ch=>ch.cells.forEach(idx=>chainCellSet.add(idx)));
   return agents.some(a=>chainCellSet.has(a.idx));
 }
+/* ---- Small illustrative diagrams for the mission panel ---- */
+const MISSION_DIAGRAMS = {
+  growing_trust: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'2',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'},{r:0,c:3,label:'1',color:'rojo'}]},
+  inner_circle: {type:'dice', cells:[{r:0,c:0,label:'4',color:'rojo'},{r:0,c:1,label:'1',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'},{r:0,c:3,label:'2',color:'rojo'},{r:0,c:4,label:'5',color:'rojo'}]},
+  dual_allegiance: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'2',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'},{r:2,c:0,label:'4',color:'azul'},{r:2,c:1,label:'6',color:'azul'},{r:2,c:2,label:'1',color:'azul'}]},
+  top_clearance: {type:'dice', cells:[{r:0,c:0,label:'4',color:'rojo'},{r:0,c:1,label:'1',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'}]},
+  high_value_ledger: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'1',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'},{r:0,c:3,label:'3',color:'rojo'}]},
+  building_the_file: {type:'fill', cols:5, rows:4, filled:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,0],[1,1],[1,2],[1,3],[1,4],[2,0],[2,1]], redacted:[]},
+  deep_archive: {type:'fill', cols:5, rows:4, filled:[[0,0],[0,1],[0,2],[0,3],[0,4],[1,0],[1,1],[1,2],[1,3],[1,4],[2,0],[2,1],[2,2],[2,3],[2,4],[3,0]], redacted:[]},
+  total_coverage: {type:'fill', cols:5, rows:4, filled:(()=>{const a=[];for(let r=0;r<4;r++)for(let c=0;c<5;c++)if(!(r===0&&c===0)&&!(r===3&&c===4))a.push([r,c]);return a;})(), redacted:[[0,0],[3,4]]},
+  coordinated_pair: {type:'dice', cells:[{r:0,c:0,label:'2',color:'rojo'},{r:0,c:1,label:'2',color:'azul'}]},
+  working_cell: {type:'dice', cells:[{r:0,c:0,label:'3',color:'rojo'},{r:0,c:1,label:'3',color:'azul'},{r:0,c:2,label:'3',color:'verde'}]},
+  field_team: {type:'dice', cells:[{r:0,c:0,label:'4',color:'rojo'},{r:0,c:1,label:'4',color:'azul'},{r:0,c:2,label:'4',color:'verde'},{r:0,c:3,label:'4',color:'morado'}]},
+  elite_cell: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'5',color:'azul'},{r:0,c:2,label:'5',color:'verde'},{r:0,c:3,label:'5',color:'morado'},{r:0,c:4,label:'5',color:'naranja'}]},
+  parallel_operations: {type:'dice', cells:[{r:0,c:0,label:'3',color:'rojo'},{r:0,c:1,label:'3',color:'azul'},{r:0,c:2,label:'3',color:'verde'},{r:2,c:0,label:'3',color:'morado'},{r:2,c:1,label:'3',color:'naranja'},{r:2,c:2,label:'3',color:'amarillo'}]},
+  overgrown_cell: {type:'dice', cells:[{r:0,c:0,label:'3',color:'rojo'},{r:0,c:1,label:'3',color:'azul'},{r:0,c:2,label:'3',color:'verde'},{r:0,c:3,label:'3',color:'morado'}]},
+  ground_level: {type:'dice', cells:[{r:0,c:0,label:'1',color:'rojo'},{r:0,c:1,label:'1',color:'azul'},{r:0,c:2,label:'1',color:'verde'}]},
+  border_patrol: {type:'fill', cols:5, rows:4, filled:(()=>{const a=[];for(let r=0;r<4;r++)for(let c=0;c<5;c++){const border=(r===0||r===3||c===0||c===4); if(border && !(r===0&&c===0) && !(r===3&&c===4)) a.push([r,c]);}return a;})(), redacted:[[0,0],[3,4]]},
+  turned: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'2',color:'rojo',agent:true},{r:0,c:2,label:'6',color:'rojo'},{r:1,c:1,label:'2',color:'azul'}]},
+  web_of_two: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'2',color:'rojo',agent:true},{r:0,c:2,label:'6',color:'rojo'},{r:1,c:1,label:'2',color:'azul'},{r:0,c:5,label:'5',color:'morado'},{r:0,c:6,label:'1',color:'morado',agent:true},{r:0,c:7,label:'6',color:'morado'},{r:1,c:6,label:'1',color:'naranja'}]},
+  perfect_cover: {type:'dice', cells:[{r:0,c:0,label:'6',color:'rojo'},{r:0,c:1,label:'1',color:'rojo'},{r:0,c:2,label:'4',color:'rojo',agent:true},{r:1,c:0,label:'4',color:'naranja'},{r:1,c:1,label:'4',color:'verde'},{r:1,c:2,label:'4',color:'azul'}]},
+  twin_moles: {type:'dice', cells:[{r:0,c:0,label:'1',color:'rojo',agent:true},{r:0,c:1,label:'2',color:'rojo',agent:true},{r:0,c:2,label:'5',color:'rojo'},{r:1,c:0,label:'1',color:'azul'},{r:1,c:1,label:'2',color:'azul'}]},
+  two_front: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'1',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'},{r:2,c:0,label:'4',color:'azul'},{r:2,c:1,label:'4',color:'verde'},{r:2,c:2,label:'4',color:'morado'}]},
+  triple_threat: {type:'dice', cells:[{r:0,c:0,label:'5',color:'rojo'},{r:0,c:1,label:'1',color:'rojo'},{r:0,c:2,label:'6',color:'rojo'},{r:2,c:0,label:'4',color:'azul'},{r:2,c:1,label:'4',color:'verde'},{r:2,c:2,label:'4',color:'morado'}]},
+  compromised_chain: {type:'dice', cells:[{r:0,c:0,label:'1',color:'amarillo'},{r:0,c:1,label:'1',color:'rojo',agent:true},{r:0,c:2,label:'2',color:'azul'},{r:0,c:3,label:'3',color:'verde'},{r:0,c:4,label:'4',color:'morado'},{r:1,c:1,label:'5',color:'rojo'},{r:2,c:1,label:'6',color:'rojo'}]},
+  triple_agent: {type:'dice', cells:[{r:0,c:1,label:'5',color:'rojo'},{r:1,c:1,label:'6',color:'rojo'},{r:2,c:0,label:'1',color:'verde'},{r:2,c:1,label:'2',color:'rojo',agent:true},{r:2,c:2,label:'3',color:'morado'},{r:2,c:3,label:'4',color:'naranja'},{r:3,c:1,label:'2',color:'azul'}]},
+  world_map: {type:'fill', cols:5, rows:4, scatterDice:[{r:0,c:0,label:'3',color:'rojo'},{r:0,c:4,label:'6',color:'azul'},{r:1,c:2,label:'1',color:'verde'},{r:2,c:0,label:'4',color:'morado'},{r:3,c:4,label:'2',color:'naranja'},{r:3,c:2,label:'5',color:'amarillo'}]},
+  full_spectrum: {type:'fill', cols:5, rows:4, scatterDice:[{r:0,c:0,label:'1',color:'rojo'},{r:0,c:4,label:'2',color:'rojo'},{r:1,c:2,label:'3',color:'rojo'},{r:2,c:0,label:'4',color:'rojo'},{r:3,c:4,label:'5',color:'rojo'},{r:3,c:2,label:'6',color:'rojo'}]},
+  crosshairs: {type:'fill', cols:5, rows:4, filled:[[0,2],[1,0],[1,1],[1,2],[1,3],[1,4],[2,2],[3,2]], redacted:[]},
+  inner_sanctum: {type:'fill', cols:5, rows:4, filled:[[1,1],[1,2],[1,3],[2,1],[2,2],[2,3]], redacted:[]},
+  global_registry: {type:'fill', cols:5, rows:4, scatterDice:[{r:0,c:0,label:'4',color:'rojo'},{r:0,c:4,label:'4',color:'azul'},{r:1,c:2,label:'4',color:'verde'},{r:2,c:0,label:'4',color:'morado'},{r:3,c:4,label:'4',color:'naranja'},{r:3,c:2,label:'4',color:'amarillo'}]},
+  extended_custody: {type:'dice', cells:[{r:0,c:0,label:'1',color:'rojo'},{r:0,c:1,label:'2',color:'azul'},{r:0,c:2,label:'3',color:'verde'},{r:0,c:3,label:'4',color:'morado'},{r:0,c:4,label:'5',color:'naranja'}]},
+  full_custody: {type:'dice', cells:[{r:0,c:0,label:'1',color:'rojo'},{r:0,c:1,label:'2',color:'azul'},{r:0,c:2,label:'3',color:'verde'},{r:0,c:3,label:'4',color:'morado'},{r:0,c:4,label:'5',color:'naranja'},{r:0,c:5,label:'6',color:'amarillo'}]},
+};
+function renderMissionDiagram(id){
+  const d = MISSION_DIAGRAMS[id];
+  if(!d) return '';
+  if(d.type==='dice'){
+    const maxR = Math.max(...d.cells.map(c=>c.r));
+    const maxC = Math.max(...d.cells.map(c=>c.c));
+    let html = `<div style="display:grid; grid-template-columns:repeat(${maxC+1},15px); grid-auto-rows:15px; gap:2px; margin:5px 0;">`;
+    for(let r=0;r<=maxR;r++){
+      for(let c=0;c<=maxC;c++){
+        const cell = d.cells.find(x=>x.r===r&&x.c===c);
+        if(cell){
+          const ring = cell.agent ? 'box-shadow:inset 0 0 0 2px #fff;' : '';
+          const txtColor = cell.color==='amarillo' ? '#2a1c04' : '#fff';
+          html += `<div style="width:15px;height:15px;border-radius:3px;background:${COLOR_HEX(cell.color)};${ring}color:${txtColor};font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cell.label}</div>`;
+        } else { html += `<div></div>`; }
+      }
+    }
+    html += `</div>`;
+    return html;
+  }
+  if(d.type==='fill'){
+    const filledSet = new Set((d.filled||[]).map(([r,c])=>r*d.cols+c));
+    const redactedSet = new Set((d.redacted||[]).map(([r,c])=>r*d.cols+c));
+    const scatterMap = {};
+    (d.scatterDice||[]).forEach(sd=>scatterMap[sd.r*d.cols+sd.c]=sd);
+    let html = `<div style="display:grid; grid-template-columns:repeat(${d.cols},13px); gap:2px; margin:5px 0;">`;
+    for(let r=0;r<d.rows;r++){
+      for(let c=0;c<d.cols;c++){
+        const idx = r*d.cols+c;
+        if(scatterMap[idx]){
+          const sd = scatterMap[idx];
+          const txtColor = sd.color==='amarillo' ? '#2a1c04' : '#fff';
+          html += `<div style="width:13px;height:13px;border-radius:2px;background:${COLOR_HEX(sd.color)};color:${txtColor};font-size:7px;font-weight:700;display:flex;align-items:center;justify-content:center;">${sd.label}</div>`;
+        } else {
+          let bg = '#e7ddc7';
+          if(redactedSet.has(idx)) bg='#c1453c';
+          else if(filledSet.has(idx)) bg='#221f1a';
+          html += `<div style="width:13px;height:13px;border-radius:2px;background:${bg};"></div>`;
+        }
+      }
+    }
+    html += `</div>`;
+    return html;
+  }
+  return '';
+}
+
 const MISSIONS = [
   {id:'growing_trust', category:'I', points:6, name:'Growing Trust', cond:'Home Network de 4+ agentes.', check:(b)=>scoringColorGroups(b).some(g=>g.cells.length>=4)},
   {id:'inner_circle', category:'I', points:8, name:'Inner Circle', cond:'Home Network de 5+ agentes.', check:(b)=>scoringColorGroups(b).some(g=>g.cells.length>=5)},
@@ -531,7 +612,16 @@ function deserializeState(str){
   return obj;
 }
 function render(){
-  if(onlineMode && db && roomId){ db.ref('games/'+roomId+'/blob').set(serializeState(state)); doRender(); }
+  if(onlineMode && db && roomId){
+    db.ref('games/'+roomId+'/blob').set(serializeState(state)).catch(e=>{
+      console.error('Firebase write failed:', e);
+      const msg = document.getElementById('lobbyMsg');
+      const dot = document.getElementById('connDot');
+      if(dot) dot.classList.add('off');
+      alert('No se pudo guardar el estado en Firebase: ' + e.message + '\n\nRevisa las reglas de seguridad de tu Realtime Database (Firebase Console → Build → Realtime Database → pestaña Rules).');
+    });
+    doRender();
+  }
   else { doRender(); }
 }
 function listenToRoom(){
@@ -613,7 +703,7 @@ function joinOnlineRoom(codeArg){
       showGameScreen();
       msg.textContent = '';
     });
-  }).catch(e=>{ console.error(e); msg.textContent = 'No se pudo conectar. Revisa tu conexión o la configuración de Firebase.'; });
+  }).catch(e=>{ console.error(e); msg.textContent = 'No se pudo conectar (' + (e.code||e.message||e) + '). Si dice "PERMISSION_DENIED", revisa las reglas de tu Realtime Database.'; });
 }
 function backToLobby(){
   if(onlineMode && db && roomId){ db.ref('games/'+roomId+'/blob').off(); }
@@ -666,6 +756,7 @@ function newGame(numPlayers){
     abilityUseCounts: {},
     abilityScorePenalty: Array(numPlayers).fill(0),
     abilityMode: null,
+    abilityUsedThisTurn: false,
     lastLog: `Operación iniciada con ${numPlayers} agencias.`,
   };
   drawToTable(setup.marketSize);
@@ -728,6 +819,7 @@ function endTurnAdvance(){
 
   state.current = (state.current + 1) % state.numPlayers;
   state.selectedTableIdx = []; state.pending = []; state.reshuffleOptions = null; state.abilityMode = null;
+  state.abilityUsedThisTurn = false;
 
   if(state.table.length===0 && state.bag.length===0){
     state.lastLog = `Agencia ${state.current+1} no tiene ninguna operación posible: pierde el turno.`;
@@ -835,6 +927,7 @@ function payAbilityCost(playerIdx, abilityId){
   state.abilityScorePenalty[playerIdx] += cost;
   const idx = state.playerAbilities[playerIdx].indexOf(abilityId);
   if(idx>=0) state.playerAbilities[playerIdx].splice(idx,1);
+  state.abilityUsedThisTurn = true;
   return cost;
 }
 function activateAbility(abilityId){
@@ -842,6 +935,7 @@ function activateAbility(abilityId){
   if(state.gameOver) return;
   const p = state.current;
   if(!state.playerAbilities[p].includes(abilityId)) return;
+  if(state.abilityUsedThisTurn){ state.lastLog = 'Ya activaste una habilidad este turno — solo se puede usar 1 por turno.'; render(); return; }
   if(['same_rank_override','same_nation_override','double_cross','deep_cover'].includes(abilityId)){
     state.abilityMode = {abilityId, armed:true};
     state.lastLog = `Agencia ${p+1} activa ${abilityNameOf(abilityId)}.`;
@@ -1055,12 +1149,17 @@ function renderInternal(){
     const def = MISSIONS.find(m=>m.id===am.id);
     const first = am.firstBy!==null ? `<span class="badge gold">1º Agencia ${am.firstBy+1} (+${def.points})</span>` : `<span class="badge open">1º: ${def.points} pts</span>`;
     const second = am.secondBy!==null ? `<span class="badge silver">2º Agencia ${am.secondBy+1} (+${Math.ceil(def.points/2)})</span>` : (am.firstBy!==null ? `<span class="badge open">2º: ${Math.ceil(def.points/2)} pts</span>` : '');
+    const abDef = ABILITY_DEFS.find(a=>a.id===am.abilityId);
+    const abCost = abilityCost(am.abilityId, state.abilityUseCounts);
     return `<div class="mission-card">
       <div class="m-cat">${def.category}</div>
       <div class="m-name">${def.name}</div>
       <div class="m-cond">${def.cond}</div>
+      ${renderMissionDiagram(am.id)}
       <div class="m-status">${first}${second}</div>
-      <div class="m-cond" style="margin-top:4px;">🔓 Desbloquea: <b>${abilityNameOf(am.abilityId)}</b></div>
+      <div class="m-cond" style="margin-top:6px; padding-top:6px; border-top:1px dashed var(--panel-line);">
+        🔓 <b>${abDef.name}</b> <span style="color:var(--amber-dark); font-weight:700;">(${abCost} pts)</span><br>${abDef.effect}
+      </div>
     </div>`;
   }).join('');
 
@@ -1069,13 +1168,16 @@ function renderInternal(){
   const abilitiesArea = document.getElementById('abilitiesArea');
   const trainingNote = (!state.gameOver && state.playerTraining[state.current]) ?
     `<div class="ability-empty">🎓 Agente en entrenamiento: se re-tirará solo en tu próximo Quemar la Red.</div>` : '';
+  const usedNote = (!state.gameOver && state.abilityUsedThisTurn) ?
+    `<div class="ability-empty">✋ Ya usaste tu habilidad de este turno — solo se permite 1.</div>` : '';
   if(!myAbilities.length){
-    abilitiesArea.innerHTML = trainingNote || '<span class="ability-empty">Aún no tienes habilidades desbloqueadas — se ganan al cumplir misiones.</span>';
+    abilitiesArea.innerHTML = trainingNote + usedNote || '<span class="ability-empty">Aún no tienes habilidades desbloqueadas — se ganan al cumplir misiones.</span>';
   } else {
-    abilitiesArea.innerHTML = trainingNote + myAbilities.map(id=>{
+    abilitiesArea.innerHTML = trainingNote + usedNote + myAbilities.map(id=>{
       const def = ABILITY_DEFS.find(a=>a.id===id);
       const cost = abilityCost(id, state.abilityUseCounts);
-      return `<button class="ability-btn" onclick="activateAbility('${id}')"><span class="a-name">${def.name}</span><span class="a-cost">costo actual: ${cost} pts</span></button>`;
+      const disabled = state.abilityUsedThisTurn ? 'style="opacity:0.4; cursor:not-allowed;"' : '';
+      return `<button class="ability-btn" ${disabled} onclick="activateAbility('${id}')"><span class="a-name">${def.name}</span><span class="a-cost">costo actual: ${cost} pts</span></button>`;
     }).join('');
   }
   const modeArea = document.getElementById('abilityModeArea');
