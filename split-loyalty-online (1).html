@@ -118,6 +118,12 @@
   .cell.empty.valid:hover{background:#c3e3c6;}
   .cell.filled{border-style:solid; border-color: rgba(0,0,0,0.15);}
   .cell.redacted{ background: repeating-linear-gradient(45deg, #2a2724, #2a2724 4px, #3a352f 4px, #3a352f 8px); border:1px solid #c1453c; cursor:not-allowed;}
+  .cell.special-black{ background: repeating-linear-gradient(45deg, #2a2724, #2a2724 4px, #3a352f 4px, #3a352f 8px); border:1px solid #6b6558; color:#fff; font-size:11px; cursor:default;}
+  .cell.special-black.valid{ cursor:pointer; border-color:var(--ok); border-width:2px;}
+  .cell.special-rank{ background:#fff3d6; border:2px dashed #b8801f; color:#b8801f; font-weight:800; cursor:default;}
+  .cell.special-rank.valid{ cursor:pointer; border-color:var(--ok); background:#e3f3e5;}
+  .cell.special-nation{ background:#fff; border:3px solid #999; cursor:default;}
+  .cell.special-nation.valid{ cursor:pointer; background:#e3f3e5;}
   .cell.select-target{outline:2px solid var(--amber); cursor:pointer;}
 
   .board-note{font-size:11px; color:var(--ink-soft); margin-top:8px; line-height:1.4;}
@@ -159,15 +165,35 @@
     <h1>Split Loyalty</h1>
     <p class="subtitle" id="modeSubtitle">Red de espías con lealtades divididas — modo local, mismo dispositivo</p>
     <details class="rules">
-      <summary>Recordatorio rápido de reglas</summary>
+      <summary>❓ Ayuda de reglas</summary>
+
+      <p style="font-weight:700; margin:10px 0 4px; color:#f2e4c0;">Cómo se forma cada red (ejemplos)</p>
+      <div style="display:flex; gap:18px; flex-wrap:wrap; margin-bottom:10px;">
+        <div style="background:var(--panel); color:var(--ink); border-radius:8px; padding:8px 10px; max-width:220px;">
+          <div id="exampleHN"></div>
+          <b>Home Network</b><br>misma nación, rangos distintos, adyacentes. Puntúa desde 3 agentes (suma de rangos).
+        </div>
+        <div style="background:var(--panel); color:var(--ink); border-radius:8px; padding:8px 10px; max-width:220px;">
+          <div id="exampleSC"></div>
+          <b>Sleeper Cell</b><br>mismo rango, naciones distintas, adyacentes. Puntúa si tamaño ≥ rango (rango×tamaño, máx. 7 con el negro).
+        </div>
+        <div style="background:var(--panel); color:var(--ink); border-radius:8px; padding:8px 10px; max-width:220px;">
+          <div id="exampleChain"></div>
+          <b>Chain of Custody</b><br>1→2→3→4... en ese orden exacto, cada eslabón adyacente al anterior, naciones distintas. Mínimo 4. Pueden existir varias cadenas a la vez, pero un agente no puede estar en dos.
+        </div>
+      </div>
+
+      <p style="font-weight:700; margin:10px 0 4px; color:#f2e4c0;">Cómo es un turno</p>
+      <p style="margin:0 0 10px;">En tu turno, elige UNA de estas dos acciones:</p>
+      <ul style="margin-top:0;">
+        <li><b>A) Reclutar 1 o 2 agentes</b> del mercado. Si reclutas 2, deben diferir en nación Y rango. En el primerísimo turno de la partida solo se puede reclutar 1.</li>
+        <li><b>B) Quemar la Red</b> — devuelves el mercado a la reserva, revelas agentes nuevos, te quedas con 1, el resto queda expuesto para los demás.</li>
+      </ul>
+      <p style="margin:0 0 4px;">Después de reclutar, archivas cada agente en una casilla vacía y legal de tu dossier — si queda adyacente a su misma nación o su mismo rango, se une automáticamente a esa red.</p>
+
       <ul>
         <li><b>Nación y rango:</b> cada agente tiene un color (nación) y un número (rango 1–6). El dado negro es una 7ª nación.</li>
-        <li><b>Reclutar 1 o 2:</b> si reclutas 2, deben diferir en nación Y rango. En el primerísimo turno de la partida solo se puede reclutar 1.</li>
-        <li><b>Quemar la red:</b> devuelves el mercado a la reserva, revelas nuevos agentes, te quedas con 1, el resto queda expuesto.</li>
-        <li><b>Home Network:</b> misma nación, rangos distintos, adyacentes. Puntúa desde 3 agentes (suma de rangos).</li>
-        <li><b>Sleeper Cell:</b> mismo rango, naciones distintas, adyacentes. Puntúa si tamaño ≥ rango (rango×tamaño, máx. 7 con el negro).</li>
-        <li><b>Chain of Custody:</b> rango 1→2→3→4... en ese orden, cada eslabón adyacente al anterior, naciones distintas. Mínimo 4. Puede haber varias cadenas a la vez, pero un agente no puede estar en dos cadenas.</li>
-        <li><b>Casillas redactadas:</b> nunca se puede archivar ahí, pero cuentan como ocupadas para misiones de espacio.</li>
+        <li><b>4 casillas especiales por dossier:</b> 2 solo aceptan un dado <b>negro</b>; 1 solo acepta un <b>rango</b> específico (cualquier nación); 1 solo acepta una <b>nación</b> específica (cualquier rango). Cuentan como ya ocupadas para el fin de la partida y para misiones de espacio, tengan o no un dado real puesto.</li>
         <li><b>Misiones:</b> 4 activas (1 por categoría) toda la partida. El 1º en cumplirla anota el puntaje impreso; el 2º, la mitad redondeada arriba.</li>
         <li><b>Habilidades:</b> al repartir las 4 misiones, cada una queda ligada a 1 habilidad específica (sorteada al inicio y visible desde el principio, con su efecto y costo). Al cumplir esa misión (1º o 2º puesto) desbloqueas justo esa habilidad. Solo se puede activar <b>1 habilidad por turno</b>, y cada uso cuesta puntos que suben cada vez que CUALQUIER jugador la usa.</li>
         <li><b>Training Die (una de las 15 habilidades):</b> al reclutar, aparta 1 agente en entrenamiento en vez de archivarlo. En tu próximo Quemar la Red se re-tira solo y pasa a tu cola para archivar. Máximo 1 a la vez.</li>
@@ -193,17 +219,21 @@
     <div class="config-warning" id="configWarning">
       ⚠️ Falta configurar Firebase: edita <code>firebaseConfig</code> en el HTML con los datos de tu propio proyecto antes de poder crear o unirte a una sala. "Jugar en este dispositivo" funciona sin ningún cambio.
     </div>
-    <details style="text-align:left; margin-top:16px; font-size:12.5px; color:var(--ink-soft);">
-      <summary style="cursor:pointer; font-weight:600; color:var(--ink);">¿Cómo configuro Firebase para jugar en línea? (una sola vez)</summary>
-      <ol style="padding-left:18px; line-height:1.6;">
-        <li>Entra a <a href="https://console.firebase.google.com" target="_blank">console.firebase.google.com</a> y crea un proyecto nuevo (gratis).</li>
-        <li>En el menú del proyecto, ve a <b>Build → Realtime Database</b> → "Crear base de datos" → elige <b>modo de prueba</b> (test mode) para empezar rápido.</li>
-        <li>Ve a <b>Configuración del proyecto</b> (ícono de engranaje) → sección "Tus apps" → botón <b>&lt;/&gt; (Web)</b> → registra una app (no hace falta Hosting).</li>
-        <li>Copia el objeto <code>firebaseConfig</code> que te muestra Firebase y pégalo reemplazando el bloque <code>const firebaseConfig = {...}</code> cerca del inicio del <code>&lt;script&gt;</code> de este archivo.</li>
-        <li>Guarda el archivo. Ya puedes "Crear sala" — te va a dar un link para compartir con las demás agencias.</li>
-      </ol>
-      <p>Nota: en modo de prueba, la base de datos queda abierta a cualquiera con el link del proyecto por ~30 días — está bien para un prototipo de playtest, no para producción.</p>
-    </details>
+
+    <div style="margin-top:16px; text-align:left; border-top:1px solid var(--panel-line); padding-top:12px;">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer; font-size:13.5px;">
+        <input type="checkbox" id="testModeCheckbox" onchange="toggleTestMode()">
+        🧪 Modo de prueba de habilidades: empezar con habilidades ya desbloqueadas
+      </label>
+      <div id="testAbilitiesPanel" style="display:none; margin-top:10px;">
+        <p style="font-size:11.5px; color:var(--ink-soft); margin:0 0 6px;">Se le dan a TODAS las agencias, con suministro infinito (no se gastan al usarlas) y sin límite de 1 por turno, para que puedas probar cada una las veces que quieras. Aplica tanto si juegas local como si creas/te unes a una sala.</p>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <button type="button" onclick="selectAllTestAbilities(true)" style="font-size:11px; padding:4px 8px; border-radius:6px; border:1px solid var(--ink-soft); background:#fff; cursor:pointer;">Todas</button>
+          <button type="button" onclick="selectAllTestAbilities(false)" style="font-size:11px; padding:4px 8px; border-radius:6px; border:1px solid var(--ink-soft); background:#fff; cursor:pointer;">Ninguna</button>
+        </div>
+        <div id="testAbilitiesGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:6px; max-height:220px; overflow-y:auto; text-align:left; font-size:11.5px; padding-right:4px;"></div>
+      </div>
+    </div>
   </div>
 
   <div id="roomBar" class="room-bar">
@@ -324,9 +354,14 @@ function bfsSameAttr(board, startIdx, attr, val){
   }
   return comp;
 }
-function isValidPlacement(board, redactedSet, idx, die, opts){
+function isValidPlacement(board, specialCells, idx, die, opts){
   opts = opts||{};
-  if(!opts.allowRedacted && redactedSet.has(idx)) return false;
+  const special = specialCells[idx];
+  if(special && !opts.ignoreSpecialRestriction){
+    if(special.type==='black' && die.color!==BLACK) return false;
+    if(special.type==='rank' && die.value!==special.value) return false;
+    if(special.type==='nation' && die.color!==special.value) return false;
+  }
   if(board[idx]) return false;
   const nbs = neighborsOf(idx);
   const colorNbs = nbs.filter(n=>board[n] && board[n].color===die.color);
@@ -343,9 +378,9 @@ function isValidPlacement(board, redactedSet, idx, die, opts){
   }
   return true;
 }
-function validCellsFor(board, redactedSet, die, opts){
+function validCellsFor(board, specialCells, die, opts){
   const out = [];
-  for(let i=0;i<CELLS;i++){ if(isValidPlacement(board, redactedSet, i, die, opts)) out.push(i); }
+  for(let i=0;i<CELLS;i++){ if(isValidPlacement(board, specialCells, i, die, opts)) out.push(i); }
   return out;
 }
 function computeGroups(board, attr){
@@ -405,7 +440,7 @@ function getScoringDoubleAgents(board){
   }
   return {agents, colorGroups, numberGroups};
 }
-function scoreBoard(board, redactedSet){
+function scoreBoard(board, specialCells){
   const colorGroups = computeGroups(board,'color').map(g=>{
     const qualifies = g.cells.length>=3;
     const points = qualifies ? g.cells.reduce((s,c)=>s+board[c].value,0) : 0;
@@ -473,25 +508,29 @@ const MISSION_DIAGRAMS = {
   extended_custody: {type:'dice', cells:[{r:0,c:0,label:'1',color:'rojo'},{r:0,c:1,label:'2',color:'azul'},{r:0,c:2,label:'3',color:'verde'},{r:0,c:3,label:'4',color:'morado'},{r:0,c:4,label:'5',color:'naranja'}]},
   full_custody: {type:'dice', cells:[{r:0,c:0,label:'1',color:'rojo'},{r:0,c:1,label:'2',color:'azul'},{r:0,c:2,label:'3',color:'verde'},{r:0,c:3,label:'4',color:'morado'},{r:0,c:4,label:'5',color:'naranja'},{r:0,c:5,label:'6',color:'amarillo'}]},
 };
+function renderDiceCells(cells, cellSize){
+  cellSize = cellSize || 15;
+  const maxR = Math.max(...cells.map(c=>c.r));
+  const maxC = Math.max(...cells.map(c=>c.c));
+  let html = `<div style="display:grid; grid-template-columns:repeat(${maxC+1},${cellSize}px); grid-auto-rows:${cellSize}px; gap:2px; margin:5px 0;">`;
+  for(let r=0;r<=maxR;r++){
+    for(let c=0;c<=maxC;c++){
+      const cell = cells.find(x=>x.r===r&&x.c===c);
+      if(cell){
+        const ring = cell.agent ? 'box-shadow:inset 0 0 0 2px #fff;' : '';
+        const txtColor = cell.color==='amarillo' ? '#2a1c04' : '#fff';
+        html += `<div style="width:${cellSize}px;height:${cellSize}px;border-radius:3px;background:${COLOR_HEX(cell.color)};${ring}color:${txtColor};font-size:${Math.round(cellSize*0.53)}px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cell.label}</div>`;
+      } else { html += `<div></div>`; }
+    }
+  }
+  html += `</div>`;
+  return html;
+}
 function renderMissionDiagram(id){
   const d = MISSION_DIAGRAMS[id];
   if(!d) return '';
   if(d.type==='dice'){
-    const maxR = Math.max(...d.cells.map(c=>c.r));
-    const maxC = Math.max(...d.cells.map(c=>c.c));
-    let html = `<div style="display:grid; grid-template-columns:repeat(${maxC+1},15px); grid-auto-rows:15px; gap:2px; margin:5px 0;">`;
-    for(let r=0;r<=maxR;r++){
-      for(let c=0;c<=maxC;c++){
-        const cell = d.cells.find(x=>x.r===r&&x.c===c);
-        if(cell){
-          const ring = cell.agent ? 'box-shadow:inset 0 0 0 2px #fff;' : '';
-          const txtColor = cell.color==='amarillo' ? '#2a1c04' : '#fff';
-          html += `<div style="width:15px;height:15px;border-radius:3px;background:${COLOR_HEX(cell.color)};${ring}color:${txtColor};font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;">${cell.label}</div>`;
-        } else { html += `<div></div>`; }
-      }
-    }
-    html += `</div>`;
-    return html;
+    return renderDiceCells(d.cells, 15);
   }
   if(d.type==='fill'){
     const filledSet = new Set((d.filled||[]).map(([r,c])=>r*d.cols+c));
@@ -567,12 +606,12 @@ const ABILITY_DEFS = [
   {id:'extra_take', name:'Extra Take', base:3, step:2, effect:'Después de Quemar la Red, recluta 1 agente adicional del mercado fresco.'},
   {id:'double_cross', name:'Double Cross', base:1, step:1, effect:'Al reclutar, cambia uno de los reclutados por cualquier otro agente del mercado.'},
   {id:'burn_notice', name:'Burn Notice', base:2, step:1, effect:'Quita del mercado 1 agente de tu elección — no lo reclutas tú.'},
-  {id:'deep_cover', name:'Deep Cover', base:2, step:2, effect:'Archiva 1 agente recién reclutado en una de tus casillas redactadas, solo esta vez.'},
-  {id:'second_source', name:'Second Source', base:3, step:2, effect:'Este turno, recluta cualquier cantidad de agentes (todos distintos entre sí) cuya suma de rangos sea ≤ 9.'},
-  {id:'cover_story', name:'Cover Story', base:2, step:1, effect:'Después de Quemar la Red: hasta 4 agentes expuestos vuelven a la bolsa.'},
+  {id:'deep_cover', name:'Deep Cover', base:2, step:2, effect:'Archiva 1 agente recién reclutado en una de tus 4 casillas especiales (negra / rango / nación), ignorando su restricción, solo esta vez.'},
+  {id:'second_source', name:'Second Source', base:3, step:2, effect:'Este turno, recluta cualquier cantidad de agentes (todos distintos entre sí) cuya suma de rangos sea ≤ 11.'},
+  {id:'cover_story', name:'Cover Story', base:2, step:1, effect:'Justo despues de Quemar la Red (en el mismo turno): hasta 4 agentes expuestos vuelven a la bolsa.'},
   {id:'relocate', name:'Relocate', base:2, step:1, effect:'Mueve 1 de tus agentes archivados a otra casilla vacía y legal.'},
   {id:'reroll_request', name:'Reroll Request', base:1, step:1, effect:'Vuelve a tirar 1 agente del mercado (misma nación, nuevo rango).'},
-  {id:'insider_info', name:'Insider Info', base:1, step:1, effect:'Al Quemar la Red, elige hasta 3 agentes que NO vuelven a la bolsa (se vuelven a tirar).'},
+  {id:'insider_info', name:'Insider Info', base:1, step:1, effect:'Antes de Quemar la Red: elige hasta 3 agentes del mercado que NO vuelven a la bolsa (se vuelven a tirar); luego sigue el Quemar la Red normal.'},
   {id:'training_die', name:'Training Die', base:1, step:1, effect:'Al reclutar, aparta 1 agente "en entrenamiento" en vez de archivarlo. La próxima vez que TÚ hagas Quemar la Red, se re-tira solo (misma nación, nuevo rango) y pasa a tu cola para archivar. Máximo 1 en entrenamiento a la vez.'},
 ];
 function abilityCost(id, useCounts){
@@ -604,12 +643,10 @@ function isMyTurn(){ return !onlineMode || (state && state.current === myPlayerI
 
 function doRender(){ renderInternal(); }
 function serializeState(s){
-  return JSON.stringify({...s, redacted: s.redacted.map(set=>[...set])});
+  return JSON.stringify(s);
 }
 function deserializeState(str){
-  const obj = JSON.parse(str);
-  obj.redacted = obj.redacted.map(arr=>new Set(arr));
-  return obj;
+  return JSON.parse(str);
 }
 function render(){
   if(onlineMode && db && roomId){
@@ -715,6 +752,8 @@ function backToLobby(){
 /* ============================== GAME STATE ============================== */
 let state = null;
 let selectedPlayerCount = 2;
+let testModeEnabled = false;
+let testModeAbilities = new Set();
 
 function initPlayerCountUI(){
   const row = document.getElementById('playerCountRow');
@@ -722,11 +761,45 @@ function initPlayerCountUI(){
 }
 function setPlayerCount(n){ selectedPlayerCount = n; initPlayerCountUI(); }
 
+function toggleTestMode(){
+  testModeEnabled = document.getElementById('testModeCheckbox').checked;
+  document.getElementById('testAbilitiesPanel').style.display = testModeEnabled ? 'block' : 'none';
+}
+function toggleTestAbility(id, checked){
+  if(checked) testModeAbilities.add(id); else testModeAbilities.delete(id);
+}
+function selectAllTestAbilities(all){
+  document.querySelectorAll('.test-ability-cb').forEach(cb=>{ cb.checked = all; toggleTestAbility(cb.value, all); });
+}
+function initTestAbilitiesGrid(){
+  const grid = document.getElementById('testAbilitiesGrid');
+  grid.innerHTML = ABILITY_DEFS.map(a=>`
+    <label style="display:flex; gap:6px; align-items:flex-start; cursor:pointer; background:#fff; border-radius:6px; padding:6px 8px;">
+      <input type="checkbox" class="test-ability-cb" value="${a.id}" onchange="toggleTestAbility('${a.id}', this.checked)" style="margin-top:2px;">
+      <span><b>${a.name}</b><br><span style="color:var(--ink-soft); font-size:10.5px;">${a.effect}</span></span>
+    </label>`).join('');
+}
+
 function newGame(numPlayers){
   const setup = setupFor(numPlayers);
   const layoutOrder = shuffle([...Array(LAYOUTS.length).keys()]);
-  const redactedByPlayer = [];
-  for(let p=0;p<numPlayers;p++) redactedByPlayer.push(new Set(layoutToIndices(LAYOUTS[layoutOrder[p % LAYOUTS.length]])));
+  const specialCellsByPlayer = [];
+  for(let p=0;p<numPlayers;p++){
+    const blackIdxs = layoutToIndices(LAYOUTS[layoutOrder[p % LAYOUTS.length]]);
+    const used = new Set(blackIdxs);
+    const extra = [];
+    while(extra.length < 2){
+      const idx = Math.floor(Math.random()*CELLS);
+      if(!used.has(idx)){ extra.push(idx); used.add(idx); }
+    }
+    const rankValue = 1 + Math.floor(Math.random()*6);
+    const nationValue = COLORS[Math.floor(Math.random()*COLORS.length)];
+    const special = {};
+    blackIdxs.forEach(i => special[i] = {type:'black'});
+    special[extra[0]] = {type:'rank', value: rankValue};
+    special[extra[1]] = {type:'nation', value: nationValue};
+    specialCellsByPlayer.push(special);
+  }
 
   const missionDeckByCat = {I:[],II:[],III:[],IV:[]};
   MISSIONS.forEach(m=>missionDeckByCat[m.category].push(m.id));
@@ -741,7 +814,7 @@ function newGame(numPlayers){
     bag: freshBag(numPlayers),
     table: [],
     boards: Array.from({length:numPlayers}, ()=>Array(CELLS).fill(null)),
-    redacted: redactedByPlayer,
+    specialCells: specialCellsByPlayer,
     current: 0,
     turnsTaken: Array(numPlayers).fill(0),
     isVeryFirstTurn: true,
@@ -757,8 +830,16 @@ function newGame(numPlayers){
     abilityScorePenalty: Array(numPlayers).fill(0),
     abilityMode: null,
     abilityUsedThisTurn: false,
+    justReshuffledBy: null,
+    testModeActive: false,
     lastLog: `Operación iniciada con ${numPlayers} agencias.`,
   };
+  if(testModeEnabled && testModeAbilities.size){
+    state.testModeActive = true;
+    const chosen = [...testModeAbilities];
+    state.playerAbilities = Array.from({length:numPlayers}, ()=>[...chosen]);
+    state.lastLog = `🧪 Modo de prueba: todas las agencias empiezan con ${chosen.length} habilidad(es) de suministro infinito.`;
+  }
   drawToTable(setup.marketSize);
   render();
 }
@@ -780,13 +861,14 @@ function triggerFinalRound(){
     state.lastLog = 'La bolsa no tiene agentes suficientes: entra la última ronda.';
   }
 }
-function boardFull(p){ return state.boards[p].every((c,i)=> c!==null || state.redacted[p].has(i)); }
+function boardFull(p){ return state.boards[p].every((c,i)=> c!==null || state.specialCells[p][i]!==undefined); }
+function specialIndexSet(p){ return new Set(Object.keys(state.specialCells[p]).map(Number)); }
 
 function checkMissions(){
   state.activeMissions.forEach(am=>{
     const def = MISSIONS.find(m=>m.id===am.id);
     for(let p=0;p<state.numPlayers;p++){
-      const satisfied = def.check(state.boards[p], state.redacted[p]);
+      const satisfied = def.check(state.boards[p], specialIndexSet(p));
       if(!satisfied) continue;
       if(am.firstBy===null){
         am.firstBy = p;
@@ -820,6 +902,7 @@ function endTurnAdvance(){
   state.current = (state.current + 1) % state.numPlayers;
   state.selectedTableIdx = []; state.pending = []; state.reshuffleOptions = null; state.abilityMode = null;
   state.abilityUsedThisTurn = false;
+  state.justReshuffledBy = null;
 
   if(state.table.length===0 && state.bag.length===0){
     state.lastLog = `Agencia ${state.current+1} no tiene ninguna operación posible: pierde el turno.`;
@@ -839,7 +922,7 @@ function placeNextPending(cellIdx){
 function advancePlacementOrFinish(){
   while(state.pending.length){
     const die = state.pending[0];
-    const valid = validCellsFor(state.boards[state.current], state.redacted[state.current], die);
+    const valid = validCellsFor(state.boards[state.current], state.specialCells[state.current], die);
     if(valid.length===0){
       state.lastLog = `No había casilla válida para ${COLOR_LABEL[die.color]} ${die.value}: se descartó.`;
       state.pending.shift();
@@ -900,6 +983,7 @@ function onReshuffle(){
   const offered = [];
   for(let k=0;k<count;k++) offered.push(rollDie(state.bag.pop()));
   state.reshuffleOptions = offered;
+  state.justReshuffledBy = state.current;
   state.lastLog = `Agencia ${state.current+1} quema la red.`;
   render();
 }
@@ -927,6 +1011,7 @@ function payAbilityCost(playerIdx, abilityId){
   state.abilityScorePenalty[playerIdx] += cost;
   const idx = state.playerAbilities[playerIdx].indexOf(abilityId);
   if(idx>=0) state.playerAbilities[playerIdx].splice(idx,1);
+  if(state.testModeActive){ state.playerAbilities[playerIdx].push(abilityId); }
   state.abilityUsedThisTurn = true;
   return cost;
 }
@@ -935,7 +1020,7 @@ function activateAbility(abilityId){
   if(state.gameOver) return;
   const p = state.current;
   if(!state.playerAbilities[p].includes(abilityId)) return;
-  if(state.abilityUsedThisTurn){ state.lastLog = 'Ya activaste una habilidad este turno — solo se puede usar 1 por turno.'; render(); return; }
+  if(state.abilityUsedThisTurn && !state.testModeActive){ state.lastLog = 'Ya activaste una habilidad este turno — solo se puede usar 1 por turno.'; render(); return; }
   if(['same_rank_override','same_nation_override','double_cross','deep_cover'].includes(abilityId)){
     state.abilityMode = {abilityId, armed:true};
     state.lastLog = `Agencia ${p+1} activa ${abilityNameOf(abilityId)}.`;
@@ -978,10 +1063,11 @@ function activateAbility(abilityId){
   }
   if(abilityId==='second_source'){
     state.abilityMode = {abilityId, armed:true, picked:[]};
-    state.lastLog = `Agencia ${p+1} activa Second Source — elige agentes cuya suma de rango sea ≤ 9.`;
+    state.lastLog = `Agencia ${p+1} activa Second Source — elige agentes cuya suma de rango sea ≤ 11.`;
     render(); return;
   }
   if(abilityId==='cover_story'){
+    if(state.justReshuffledBy !== p){ state.lastLog='Cover Story solo se puede usar justo después de Quemar la Red, en el mismo turno.'; render(); return; }
     if(state.table.length===0){ state.lastLog='No hay agentes expuestos en el mercado ahora mismo.'; render(); return; }
     state.abilityMode = {abilityId, armed:true, picked:[]};
     render(); return;
@@ -992,8 +1078,9 @@ function activateAbility(abilityId){
     render(); return;
   }
   if(abilityId==='insider_info'){
+    if(state.pending.length || state.reshuffleOptions){ state.lastLog='Insider Info solo se puede usar ANTES de Quemar la Red, al inicio de tu turno.'; render(); return; }
     state.abilityMode = {abilityId, armed:true, picked:[]};
-    state.lastLog = `Agencia ${p+1} activa Insider Info — antes de Quemar la Red, elige hasta 3 agentes que se queden (se re-tiran).`;
+    state.lastLog = `Agencia ${p+1} activa Insider Info — elige hasta 3 agentes del mercado que se queden (se re-tiran) antes de quemar el resto.`;
     render(); return;
   }
 }
@@ -1026,7 +1113,7 @@ function onAbilityMarketClick(idx){
     const sum = dice.reduce((s,d)=>s+d.value,0);
     const colorsOk = new Set(dice.map(d=>d.color)).size===dice.length;
     const ranksOk = new Set(dice.map(d=>d.value)).size===dice.length;
-    if(sum<=9 && colorsOk && ranksOk){ mode.picked = candidate; }
+    if(sum<=11 && colorsOk && ranksOk){ mode.picked = candidate; }
     render(); return;
   }
   if(mode.abilityId==='cover_story'){
@@ -1077,8 +1164,10 @@ function confirmAbilityMode(){
     const fresh = [];
     for(let k=0;k<need && state.bag.length>0;k++) fresh.push(rollDie(state.bag.pop()));
     if(fresh.length < need) triggerFinalRound();
-    state.table = [...rerolled, ...fresh];
-    state.lastLog = `Agencia ${p+1} usa Insider Info: ${rerolled.length} agentes protegidos y re-tirados.`;
+    state.table = [];
+    state.reshuffleOptions = [...rerolled, ...fresh];
+    state.justReshuffledBy = p;
+    state.lastLog = `Agencia ${p+1} usa Insider Info: ${rerolled.length} agentes protegidos y re-tirados. Ahora elige tu dado.`;
     state.abilityMode = null; render(); return;
   }
 }
@@ -1107,10 +1196,10 @@ function onAbilityBoardClick(playerIdx, cellIdx){
       if(!board[cellIdx]) return;
       mode.picked.push(cellIdx); render(); return;
     } else {
-      if(board[cellIdx] || state.redacted[p].has(cellIdx)) return;
+      if(board[cellIdx] || state.specialCells[p][cellIdx]!==undefined) return;
       const die = board[mode.picked[0]];
       board[mode.picked[0]] = null;
-      const ok = isValidPlacement(board, state.redacted[p], cellIdx, die);
+      const ok = isValidPlacement(board, state.specialCells[p], cellIdx, die);
       if(ok){ board[cellIdx] = die; payAbilityCost(p,'relocate'); state.lastLog = `Agencia ${p+1} usa Relocate.`; }
       else { board[mode.picked[0]] = die; state.lastLog='Esa casilla no es legal para ese agente — cancelado.'; }
       state.abilityMode = null; render(); return;
@@ -1143,7 +1232,7 @@ function renderInternal(){
   document.getElementById('bagCount').textContent = `Dados en bolsa: ${state.bag.length}`;
   document.getElementById('logLine').textContent = state.lastLog || '';
   const pill = document.getElementById('turnPill');
-  pill.textContent = state.gameOver ? 'Operación concluida' : `Turno de Agencia ${state.current+1}`;
+  pill.textContent = (state.testModeActive ? '🧪 PRUEBA — ' : '') + (state.gameOver ? 'Operación concluida' : `Turno de Agencia ${state.current+1}`);
 
   document.getElementById('missionsArea').innerHTML = state.activeMissions.map(am=>{
     const def = MISSIONS.find(m=>m.id===am.id);
@@ -1168,15 +1257,17 @@ function renderInternal(){
   const abilitiesArea = document.getElementById('abilitiesArea');
   const trainingNote = (!state.gameOver && state.playerTraining[state.current]) ?
     `<div class="ability-empty">🎓 Agente en entrenamiento: se re-tirará solo en tu próximo Quemar la Red.</div>` : '';
-  const usedNote = (!state.gameOver && state.abilityUsedThisTurn) ?
+  const testNote = state.testModeActive ?
+    `<div class="ability-empty">🧪 Modo de prueba: suministro infinito, sin límite de 1 por turno.</div>` : '';
+  const usedNote = (!state.gameOver && state.abilityUsedThisTurn && !state.testModeActive) ?
     `<div class="ability-empty">✋ Ya usaste tu habilidad de este turno — solo se permite 1.</div>` : '';
   if(!myAbilities.length){
-    abilitiesArea.innerHTML = trainingNote + usedNote || '<span class="ability-empty">Aún no tienes habilidades desbloqueadas — se ganan al cumplir misiones.</span>';
+    abilitiesArea.innerHTML = testNote + trainingNote + usedNote || '<span class="ability-empty">Aún no tienes habilidades desbloqueadas — se ganan al cumplir misiones.</span>';
   } else {
-    abilitiesArea.innerHTML = trainingNote + usedNote + myAbilities.map(id=>{
+    abilitiesArea.innerHTML = testNote + trainingNote + usedNote + myAbilities.map(id=>{
       const def = ABILITY_DEFS.find(a=>a.id===id);
       const cost = abilityCost(id, state.abilityUseCounts);
-      const disabled = state.abilityUsedThisTurn ? 'style="opacity:0.4; cursor:not-allowed;"' : '';
+      const disabled = (state.abilityUsedThisTurn && !state.testModeActive) ? 'style="opacity:0.4; cursor:not-allowed;"' : '';
       return `<button class="ability-btn" ${disabled} onclick="activateAbility('${id}')"><span class="a-name">${def.name}</span><span class="a-cost">costo actual: ${cost} pts</span></button>`;
     }).join('');
   }
@@ -1242,7 +1333,7 @@ function renderInternal(){
   const endArea = document.getElementById('endArea');
   if(state.gameOver){
     const scores = state.boards.map((b,p)=>{
-      const s = scoreBoard(b, state.redacted[p]);
+      const s = scoreBoard(b, state.specialCells[p]);
       const missionPts = state.activeMissions.reduce((sum,am)=>{
         const def = MISSIONS.find(m=>m.id===am.id);
         if(am.firstBy===p) return sum+def.points;
@@ -1257,34 +1348,44 @@ function renderInternal(){
       if(scores[p].total>scores[winnerIdx].total || (scores[p].total===scores[winnerIdx].total && scores[p].filled>scores[winnerIdx].filled)) winnerIdx=p;
     }
     endArea.innerHTML = `<div class="end-screen"><h2>Fin de la operación — gana Agencia ${winnerIdx+1}</h2>
-      <div class="end-score-row">${scores.map((s,p)=>`<div><span class="num">${s.total}</span>Agencia ${p+1} (${s.filled}/${CELLS - state.redacted[p].size} disp., redes ${s.networksTotal}, misiones ${s.missionPts}, habilidades −${state.abilityScorePenalty[p]})</div>`).join('')}</div>
+      <div class="end-score-row">${scores.map((s,p)=>`<div><span class="num">${s.total}</span>Agencia ${p+1} (${s.filled}/${CELLS - Object.keys(state.specialCells[p]).length} disp., redes ${s.networksTotal}, misiones ${s.missionPts}, habilidades −${state.abilityScorePenalty[p]})</div>`).join('')}</div>
       <button class="action-btn primary" onclick="backToLobbyScreen()">Nueva operación</button></div>`;
   } else { endArea.innerHTML = ''; }
 
   const boardsArea = document.getElementById('boardsArea');
   boardsArea.innerHTML = Array.from({length:state.numPlayers}, (_,p)=>{
     const board = state.boards[p];
-    const score = scoreBoard(board, state.redacted[p]);
+    const score = scoreBoard(board, state.specialCells[p]);
     const isActive = !state.gameOver && state.current===p;
     let validSet = new Set();
     if(isActive && state.pending.length && !state.abilityMode){
-      validCellsFor(board, state.redacted[p], state.pending[0]).forEach(v=>validSet.add(v));
+      validCellsFor(board, state.specialCells[p], state.pending[0]).forEach(v=>validSet.add(v));
     }
     if(isActive && state.pending.length && state.abilityMode && state.abilityMode.abilityId==='deep_cover'){
-      validCellsFor(board, state.redacted[p], state.pending[0], {allowRedacted:true}).forEach(v=>validSet.add(v));
+      validCellsFor(board, state.specialCells[p], state.pending[0], {ignoreSpecialRestriction:true}).forEach(v=>validSet.add(v));
     }
     const boardAbilityMode = isActive && state.abilityMode && ['swap_files','relocate'].includes(state.abilityMode.abilityId);
     const cells = board.map((cell, idx)=>{
-      const isRedacted = state.redacted[p].has(idx);
+      const special = state.specialCells[p][idx];
       if(cell){
         const selCls = (boardAbilityMode && (state.abilityMode.picked||[]).includes(idx)) ? ' select-target' : '';
         const click = boardAbilityMode ? ` onclick="onAbilityBoardClick(${p},${idx})"` : '';
         return `<div class="cell filled${selCls}" style="background:${COLOR_HEX(cell.color)}; color:${cell.color==='amarillo'?'#2a1c04':'#fff'};" title="${COLOR_LABEL[cell.color]} ${cell.value}"${click}>${cell.value}</div>`;
       }
-      if(isRedacted) return `<div class="cell redacted"${boardAbilityMode?` onclick="onAbilityBoardClick(${p},${idx})"`:''}></div>`;
       const isValid = isActive && (state.pending.length && !state.abilityMode || (state.abilityMode && state.abilityMode.abilityId==='deep_cover')) && validSet.has(idx);
       const isRelocateTarget = boardAbilityMode && state.abilityMode.abilityId==='relocate' && (state.abilityMode.picked||[]).length===1;
-      const click = isValid ? `onclick="placeNextPending(${idx})"` : (isRelocateTarget ? `onclick="onAbilityBoardClick(${p},${idx})"` : '');
+      const abilityClick = boardAbilityMode ? ` onclick="onAbilityBoardClick(${p},${idx})"` : '';
+      const click = isValid ? `onclick="placeNextPending(${idx})"` : (isRelocateTarget ? `onclick="onAbilityBoardClick(${p},${idx})"` : (special ? abilityClick : ''));
+      if(special){
+        const validCls = isValid ? ' valid' : '';
+        if(special.type==='black'){
+          return `<div class="cell empty special-black${validCls}" ${click} title="Solo dado negro">⬤</div>`;
+        }
+        if(special.type==='rank'){
+          return `<div class="cell empty special-rank${validCls}" ${click} title="Solo rango ${special.value}">${special.value}</div>`;
+        }
+        return `<div class="cell empty special-nation${validCls}" style="border-color:${COLOR_HEX(special.value)};" ${click} title="Solo nación ${COLOR_LABEL[special.value]}"></div>`;
+      }
       return `<div class="cell empty ${isValid||isRelocateTarget?'valid':''}" ${click}></div>`;
     }).join('');
 
@@ -1298,7 +1399,7 @@ function renderInternal(){
     return `<div class="board-panel ${isActive?'active':''}">
         <div class="board-head"><h2>Agencia ${p+1}</h2><span class="board-score">${score.networksTotal} pts</span></div>
         <div class="grid">${cells}</div>
-        <div class="board-note">${score.filled}/${CELLS - state.redacted[p].size} disponibles archivadas</div>
+        <div class="board-note">${score.filled}/${CELLS - Object.keys(state.specialCells[p]).length} disponibles archivadas</div>
         <div class="group-breakdown">${breakdown || 'Aún sin redes formadas.'}</div>
       </div>`;
   }).join('');
@@ -1334,6 +1435,9 @@ window.createOnlineRoom = createOnlineRoom;
 window.joinOnlineRoom = joinOnlineRoom;
 window.copyShareLink = copyShareLink;
 window.backToLobby = backToLobby;
+window.toggleTestMode = toggleTestMode;
+window.toggleTestAbility = toggleTestAbility;
+window.selectAllTestAbilities = selectAllTestAbilities;
 window.onSelectTableDie = onSelectTableDie;
 window.onTakeSelected = onTakeSelected;
 window.onReshuffle = onReshuffle;
@@ -1347,7 +1451,21 @@ window.onAbilityBoardClick = onAbilityBoardClick;
 window.adjustClearance = adjustClearance;
 window.backToLobbyScreen = backToLobbyScreen;
 
+function initRulesHelpExamples(){
+  document.getElementById('exampleHN').innerHTML = renderDiceCells([
+    {r:0,c:0,label:'1',color:'rojo'},{r:0,c:1,label:'2',color:'rojo'},{r:0,c:2,label:'3',color:'rojo'}
+  ], 20);
+  document.getElementById('exampleSC').innerHTML = renderDiceCells([
+    {r:0,c:0,label:'4',color:'rojo'},{r:0,c:1,label:'4',color:'azul'},{r:0,c:2,label:'4',color:'verde'}
+  ], 20);
+  document.getElementById('exampleChain').innerHTML = renderDiceCells([
+    {r:0,c:0,label:'1',color:'azul'},{r:0,c:1,label:'2',color:'verde'},{r:0,c:2,label:'3',color:'morado'},{r:0,c:3,label:'4',color:'naranja'}
+  ], 20);
+}
+
 initPlayerCountUI();
+initTestAbilitiesGrid();
+initRulesHelpExamples();
 
 // Auto-fill / auto-join if the page was opened via a shared room link (?room=CODE)
 (function(){
