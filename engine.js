@@ -26,6 +26,7 @@ const STR = {
     lobbyTitle: 'Nueva Operación',
     lobbyPlayerCountLabel: '¿Cuántas agencias van a jugar?',
     startBtn: 'Iniciar Operación',
+    goOnlineText: '¿Quieres jugar en línea con otros?',
     testModeLabel: '🧪 Modo de prueba: empezar con habilidades ya desbloqueadas',
     testModeDesc: 'Se le dan a TODAS las agencias, con suministro infinito (no se gastan al usarlas) y sin límite de 1 por turno, para que puedas probar cada una las veces que quieras.',
     testAllBtn: 'Todas', testNoneBtn: 'Ninguna',
@@ -67,7 +68,7 @@ const STR = {
         <li><b>4 casillas especiales por dossier:</b> 2 solo aceptan un dado <b>negro</b>; 1 solo acepta un <b>rango</b> específico (cualquier nación); 1 solo acepta una <b>nación</b> específica (cualquier rango). Cuentan como ya ocupadas para el fin de la partida y para misiones de espacio, tengan o no un dado real puesto.</li>
         <li><b>Misiones:</b> 4 activas (1 por categoría) toda la partida. El 1º en cumplirla anota el puntaje impreso; el 2º, la mitad redondeada arriba.</li>
         <li><b>Habilidades:</b> al repartir las 4 misiones, cada una queda ligada a 1 habilidad específica (sorteada al inicio y visible desde el principio, con su efecto y costo). Al cumplir esa misión (1º o 2º puesto) desbloqueas justo esa habilidad. Solo se puede activar <b>1 habilidad por turno</b>, y cada uso cuesta puntos que suben cada vez que CUALQUIER jugador la usa.</li>
-        <li><b>Training Die (una de las 15 habilidades):</b> al reclutar, aparta 1 agente en entrenamiento en vez de archivarlo. En tu próximo Quemar la Red se re-tira solo y pasa a tu cola para archivar. Máximo 1 a la vez.</li>
+        <li><b>Casilla de entrenamiento (siempre disponible, no es una habilidad):</b> al archivar un agente recién reclutado, en vez de ponerlo en tu dossier puedes apartarlo en tu casilla de entrenamiento (máximo 1 a la vez). La próxima vez que TÚ hagas Quemar la Red, ese agente se re-tira (mismo color, nuevo rango) y se suma a lo revelado como una opción extra — el mercado de esa vez tiene 1 agente más de lo normal.</li>
         <li><b>Última ronda:</b> se activa si la reserva no alcanza para reabastecer el mercado, o si alguien llena su dossier. Se juega hasta igualar turnos.</li>
         <li><b>Bono de conjunto:</b> si completas un grupo de tamaño exactamente 6 —una Red Nacional, una Célula Durmiente, o una Cadena de Custodia— juegas otro turno de inmediato. Solo se activa una vez por cada grupo específico.</li>
         <li><b>Mapas especiales (opcional, se elige antes de empezar):</b> además de las 2 casillas de dado negro, cada dossier tiene una casilla de rango fijo y una de nación fija, más 1 corte que desconecta dos casillas interiores normalmente adyacentes. Si una casilla negra está en el interior y la otra en el borde, la casilla de rango pide un número entre 4 y 6; si ambas negras están en el borde, pide entre 1 y 3. Al iniciar, se hace un draft inverso (el último jugador en el orden de turno elige primero) para repartir las configuraciones.</li>
@@ -84,6 +85,7 @@ const STR = {
     lobbyTitle: 'New Operation',
     lobbyPlayerCountLabel: 'How many agencies are playing?',
     startBtn: 'Start Operation',
+    goOnlineText: 'Want to play online with others?',
     testModeLabel: '🧪 Test mode: start with abilities already unlocked',
     testModeDesc: 'Given to ALL agencies, with infinite supply (not spent on use) and no 1-per-turn limit, so you can test each one as many times as you like.',
     testAllBtn: 'All', testNoneBtn: 'None',
@@ -125,7 +127,7 @@ const STR = {
         <li><b>4 special cells per dossier:</b> 2 only accept a <b>black</b> die; 1 only accepts a specific <b>rank</b> (any nation); 1 only accepts a specific <b>nation</b> (any rank). They count as already filled for the end of the game and for space-based missions, whether or not a real die is placed there.</li>
         <li><b>Missions:</b> 4 active (1 per category) for the whole game. The 1st to complete it scores its printed value; the 2nd, half rounded up.</li>
         <li><b>Abilities:</b> when the 4 missions are dealt, each is tied to 1 specific ability (drawn at the start and visible from the beginning, with its effect and cost). Completing that mission (1st or 2nd place) unlocks exactly that ability. Only <b>1 ability per turn</b> can be activated, and each use costs points that go up every time ANY player uses it.</li>
-        <li><b>Training Die (one of the 15 abilities):</b> when recruiting, set aside 1 agent "in training" instead of filing it. The next time you Burn the Network, it re-rolls on its own and moves into your queue to file. Max 1 at a time.</li>
+        <li><b>Training slot (always available, not an ability):</b> when filing a freshly recruited agent, instead of placing it in your dossier you can set it aside in your training slot (max 1 at a time). The next time YOU Burn the Network, that agent re-rolls (same color, new rank) and joins the reveal as one extra option -- that market has 1 more agent than usual.</li>
         <li><b>Final round:</b> triggers if the pool can't restock the market, or if someone fills their dossier. Play continues until turns are equal.</li>
         <li><b>Set bonus:</b> if you complete a group of exactly size 6 — a Home Network, a Sleeper Cell, or a Chain of Custody — you play another turn right away. Only triggers once per specific group.</li>
         <li><b>Special maps (optional, chosen before starting):</b> besides the 2 black-die cells, each dossier gets a fixed-rank cell and a fixed-nation cell, plus 1 cut that disconnects two interior cells that would normally be adjacent. If one black cell is interior and the other is on the border, the rank cell asks for a number between 4 and 6; if both black cells are on the border, it asks for 1 to 3. At the start, a reverse draft (the last player in turn order picks first) assigns the configurations.</li>
@@ -480,7 +482,6 @@ const ABILITY_DEFS = [
   {id:'relocate', name:'Relocate', base:2, step:1, effect:'Mueve 1 de tus agentes archivados a otra casilla vacía y legal.', effect_en:'Move 1 of your filed agents to another empty, legal cell.'},
   {id:'reroll_request', name:'Reroll Request', base:1, step:1, effect:'Vuelve a tirar 1 agente del mercado (misma nación, nuevo rango).', effect_en:'Re-roll 1 agent on the market (same nation, new rank).'},
   {id:'insider_info', name:'Insider Info', base:1, step:1, effect:'Antes de Quemar la Red: elige hasta 3 agentes del mercado que NO vuelven a la bolsa (se vuelven a tirar); luego sigue el Quemar la Red normal.', effect_en:'Before Burning the Network: choose up to 3 market agents that do NOT return to the pool (they get re-rolled instead); then the normal Burn the Network continues.'},
-  {id:'training_die', name:'Training Die', base:1, step:1, effect:'Al reclutar, aparta 1 agente "en entrenamiento" en vez de archivarlo. La próxima vez que TÚ hagas Quemar la Red, se re-tira solo (misma nación, nuevo rango) y pasa a tu cola para archivar. Máximo 1 en entrenamiento a la vez.', effect_en:'When recruiting, set aside 1 agent "in training" instead of filing it. The next time YOU Burn the Network, it re-rolls on its own (same nation, new rank) and moves into your queue to file. Max 1 in training at a time.'},
 ];
 function abilityCost(id, useCounts){
   const def = ABILITY_DEFS.find(a=>a.id===id);
@@ -529,6 +530,7 @@ function applyStaticTranslations(){
   set('lobbyTitle', ST('lobbyTitle'));
   set('lobbyPlayerCountLabel', ST('lobbyPlayerCountLabel'));
   set('startBtn', ST('startBtn'));
+  set('goOnlineText', ST('goOnlineText'));
   set('modeLocalBtn', ST('modeLocalBtn'));
   set('modeOnlineBtn', ST('modeOnlineBtn'));
   set('joinCodeInput', ST('joinCodePlaceholder'), 'placeholder');
@@ -863,17 +865,27 @@ function onTakeSelected(){
 function onReshuffle(){
   if(!isMyTurn()) return;
   if(state.gameOver || state.pending.length || state.reshuffleOptions) return;
+  const p = state.current;
   state.table.forEach(d=> state.bag.push(d.color));
   state.table = [];
   shuffle(state.bag);
-  const size = marketSize();
-  const count = Math.min(size, state.bag.length);
-  if(count < size) triggerFinalRound();
+  const hasTraining = !!state.playerTraining[p];
+  const drawCount = Math.min(marketSize(), state.bag.length);
+  if(drawCount < marketSize()) triggerFinalRound();
   const offered = [];
-  for(let k=0;k<count;k++) offered.push(rollDie(state.bag.pop()));
+  for(let k=0;k<drawCount;k++) offered.push(rollDie(state.bag.pop()));
+  if(hasTraining){
+    const td = state.playerTraining[p];
+    td.value = 1+Math.floor(Math.random()*6);
+    offered.push(td);
+    state.playerTraining[p] = null;
+    shuffle(offered);
+  }
   state.reshuffleOptions = offered;
-  state.justReshuffledBy = state.current;
-  state.lastLog = LANG==='en' ? `Agency ${state.current+1} burns the network.` : `Agencia ${state.current+1} quema la red.`;
+  state.justReshuffledBy = p;
+  state.lastLog = hasTraining
+    ? (LANG==='en' ? `Agency ${p+1} burns the network -- their training agent joins the reveal, re-rolled.` : `Agencia ${p+1} quema la red — su agente en entrenamiento se suma a lo revelado, re-tirado.`)
+    : (LANG==='en' ? `Agency ${p+1} burns the network.` : `Agencia ${p+1} quema la red.`);
   render();
 }
 function onPickReshuffle(idx){
@@ -882,14 +894,18 @@ function onPickReshuffle(idx){
   state.table = state.reshuffleOptions;
   state.reshuffleOptions = null;
   state.pending = [chosen];
+  advancePlacementOrFinish();
+}
+function canUseTrainingSlot(){
+  return state.pending.length>0 && !state.playerTraining[state.current];
+}
+function placeInTrainingSlot(){
+  if(!isMyTurn()) return;
+  if(!canUseTrainingSlot()) return;
   const p = state.current;
-  if(state.playerTraining[p]){
-    const td = state.playerTraining[p];
-    td.value = 1+Math.floor(Math.random()*6);
-    state.pending.push(td);
-    state.playerTraining[p] = null;
-    state.lastLog = LANG==='en' ? `Their training agent re-rolls: now it is ${CL(td.color)} ${td.value}.` : `Su agente en entrenamiento se re-tira: ahora es ${CL(td.color)} ${td.value}.`;
-  }
+  const die = state.pending.shift();
+  state.playerTraining[p] = die;
+  state.lastLog = LANG==='en' ? `Agency ${p+1} sets ${CL(die.color)} ${die.value} in training.` : `Agencia ${p+1} pone en entrenamiento a ${CL(die.color)} ${die.value}.`;
   advancePlacementOrFinish();
 }
 
@@ -923,16 +939,6 @@ function activateAbility(abilityId){
     payAbilityCost(p, abilityId);
     state.lastLog = LANG==='en' ? `Agency ${p+1} uses Flip the Die: now it is ${CL(die.color)} ${die.value}.` : `Agencia ${p+1} usa Flip the Die: ahora es ${CL(die.color)} ${die.value}.`;
     render(); return;
-  }
-  if(abilityId==='training_die'){
-    if(!state.pending.length){ state.lastLog=LANG==='en' ? 'Can only be used when recruiting, before filing.' : 'Solo se puede usar al reclutar, antes de archivar.'; render(); return; }
-    if(state.playerTraining[p]){ state.lastLog=LANG==='en' ? 'You already have 1 agent in training -- resolve it first (on your next Burn the Network).' : 'Ya tienes 1 agente en entrenamiento — resuélvelo primero (en tu próximo Quemar la Red).'; render(); return; }
-    const die = state.pending.shift();
-    state.playerTraining[p] = die;
-    payAbilityCost(p, abilityId);
-    state.lastLog = LANG==='en' ? `Agency ${p+1} sets ${CL(die.color)} ${die.value} in training.` : `Agencia ${p+1} pone en entrenamiento a ${CL(die.color)} ${die.value}.`;
-    advancePlacementOrFinish();
-    return;
   }
   if(abilityId==='swap_files' || abilityId==='relocate'){
     state.abilityMode = {abilityId, armed:true, picked:[]};
@@ -1203,7 +1209,7 @@ function renderCore(){
   const myAbilities = state.gameOver ? [] : state.playerAbilities[state.current];
   const abilitiesArea = document.getElementById('abilitiesArea');
   const trainingNote = (!state.gameOver && state.playerTraining[state.current]) ?
-    (LANG==='en' ? `<div class="ability-empty">🎓 Agent in training: it will re-roll on its own on your next Burn the Network.</div>` : `<div class="ability-empty">🎓 Agente en entrenamiento: se re-tirará solo en tu próximo Quemar la Red.</div>`) : '';
+    (LANG==='en' ? `<div class="ability-empty">🎓 Agent in training: on your next Burn the Network it re-rolls and joins the reveal as one extra option.</div>` : `<div class="ability-empty">🎓 Agente en entrenamiento: en tu próximo Quemar la Red se re-tira y se suma a lo revelado como una opción extra.</div>`) : '';
   const testNote = state.testModeActive ?
     (LANG==='en' ? `<div class="ability-empty">🧪 Test mode: infinite supply, no 1-per-turn limit.</div>` : `<div class="ability-empty">🧪 Modo de prueba: suministro infinito, sin límite de 1 por turno.</div>`) : '';
   const usedNote = (!state.gameOver && state.abilityUsedThisTurn && !state.testModeActive) ?
@@ -1277,6 +1283,10 @@ function renderCore(){
     hint.innerHTML += ` <button class="action-btn" style="padding:4px 10px;" onclick="adjustClearance(-1)">−1</button>
       <button class="action-btn" style="padding:4px 10px;" onclick="adjustClearance(1)">+1</button>
       <button class="action-btn ghost" style="padding:4px 10px;" onclick="cancelAbilityMode()">${cancelLabel}</button>`;
+  }
+  if(canUseTrainingSlot() && !(state.abilityMode && state.abilityMode.abilityId==='adjust_clearance')){
+    const trainLabel = LANG==='en' ? '🎓 Place in training instead' : '🎓 Poner en entrenamiento en vez de archivar';
+    hint.innerHTML += ` <button class="action-btn ghost" style="padding:4px 10px;" onclick="placeInTrainingSlot()">${trainLabel}</button>`;
   }
 
   const actionsRow = document.getElementById('actionsRow');
