@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Split Loyalty — Prototipo Local</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --felt: #24312b; --felt-dark: #1a2420;
+    --panel: #f4efe3; --panel-line: #ddd3bd;
+    --ink: #211f1c; --ink-soft: #6b6558;
+    --amber: #e0a339; --amber-dark: #b8801f;
+    --danger: #c1453c; --ok: #4c9a6a;
+    --c-rojo: #c9648f; --c-azul: #3a6ea5; --c-amarillo: #e0aa2e;
+    --c-verde: #7cb88f; --c-morado: #7d5ba6; --c-naranja: #d97a3e; --c-negro:#2a2724;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(ellipse at top, #2c3b33, var(--felt-dark) 70%);
+    color: var(--panel); font-family: 'Space Grotesk', sans-serif;
+    min-height:100vh; padding: 24px 14px 60px;
+  }
+  .wrap{max-width: 1180px; margin: 0 auto;}
+  h1{ font-size: clamp(26px, 4vw, 38px); margin: 0 0 4px; color: #fbf7ed;}
+  .subtitle{color: #b9c4bb; font-size: 14px; margin:0 0 12px;}
+  details.rules{
+    background: rgba(0,0,0,0.18); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius); padding: 10px 16px; color: #d8ddd4; font-size: 13.5px; line-height: 1.5;
+  }
+  details.rules summary{cursor:pointer; font-weight:600; color:#f2e4c0;}
+  details.rules ul{margin: 8px 0 4px; padding-left: 20px;}
+
+  .lobby{ max-width:560px; margin:60px auto; background:var(--panel); color:var(--ink); border-radius:16px; padding:28px; text-align:center;}
+  .lobby h2{margin-top:0;}
+  .player-count-row{display:flex; gap:10px; justify-content:center; margin:18px 0;}
+  .pc-btn{ font-family:inherit; font-size:16px; font-weight:700; width:56px; height:56px; border-radius:50%;
+    border:2px solid var(--ink-soft); background:#fff; cursor:pointer;}
+  .pc-btn.selected{ background:var(--amber); border-color:var(--amber-dark);}
+  .big-btn{ font-family:inherit; font-size:16px; font-weight:700; padding:14px 28px; border-radius:999px; border:none;
+    background:var(--amber); cursor:pointer; margin-top:10px;}
+  .big-btn:hover{background:#f0b653;}
+
+  .status-bar{ display:flex; align-items:center; justify-content:space-between; gap: 12px; flex-wrap: wrap;
+    margin: 16px 0; padding: 12px 16px; border-radius: var(--radius); background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.08);}
+  .turn-pill{ display:inline-flex; align-items:center; gap:8px; font-weight:700; font-size: 14px;
+    padding: 7px 14px; border-radius: 999px; background: var(--amber); color: #2a1c04;}
+  .bag-count{font-size:12.5px; color:#b9c4bb;}
+  .log-line{font-size: 12.5px; color:#f2e4c0; min-height: 16px;}
+
+  .missions-panel, .abilities-panel{ background: rgba(0,0,0,0.2); border:1px solid rgba(255,255,255,0.08); border-radius:var(--radius);
+    padding:12px 14px; margin-bottom:14px;}
+  .panel-title{ font-size:12px; letter-spacing:0.05em; color:#f2e4c0; font-weight:700; margin-bottom:8px; text-transform:uppercase;}
+  .mission-grid{display:grid; grid-template-columns:repeat(auto-fit, minmax(260px,1fr)); gap:8px;}
+  .mission-card{ background:var(--panel); color:var(--ink); border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.4;}
+  .mission-card .m-cat{font-size:10px; color:var(--ink-soft); text-transform:uppercase; font-weight:700;}
+  .mission-card .m-name{font-weight:700; font-size:13px; margin:2px 0;}
+  .mission-card .m-cond{color:var(--ink-soft);}
+  .mission-card .m-status{margin-top:6px; font-size:11px; display:flex; gap:8px; flex-wrap:wrap;}
+  .badge{display:inline-block; padding:2px 7px; border-radius:999px; font-size:10.5px; font-weight:700;}
+  .badge.gold{background:#f0d98a; color:#5c4400;}
+  .badge.silver{background:#dbe1e6; color:#3a4550;}
+  .badge.open{background:#e3ecdf; color:#3d5a3f;}
+
+  .ability-row{display:flex; gap:8px; flex-wrap:wrap;}
+  .ability-btn{ font-family:inherit; font-size:11.5px; font-weight:600; padding:7px 10px; border-radius:8px; border:1px solid rgba(255,255,255,0.25);
+    background:rgba(255,255,255,0.06); color:#f2e4c0; cursor:pointer; text-align:left; max-width:220px;}
+  .ability-btn:hover{background:rgba(255,255,255,0.14);}
+  .ability-btn .a-name{display:block; font-weight:700;}
+  .ability-btn .a-cost{display:block; font-size:10px; color:#c9a86a;}
+  .ability-empty{font-size:12px; color:#8b9389;}
+  .ability-mode-bar{ background:rgba(224,163,57,0.15); border:1px solid var(--amber); border-radius:8px; padding:8px 12px; margin-top:8px; font-size:12.5px;}
+  .ability-mode-bar button{ margin-left:8px; font-family:inherit; font-size:11px; padding:4px 10px; border-radius:6px; border:none; cursor:pointer;}
+
+  .table-area{text-align:center; margin: 6px 0 18px;}
+  .table-label{font-size:12px; color:#b9c4bb; margin-bottom:8px;}
+  .dice-row{display:flex; justify-content:center; gap:9px; flex-wrap:wrap;}
+  .die{ width: 50px; height:50px; border-radius: 11px; display:flex; align-items:center; justify-content:center;
+    font-size: 20px; font-weight:700; color: #fff; cursor:pointer; border: 3px solid transparent;
+    box-shadow: 0 3px 0 rgba(0,0,0,0.25); transition: transform .12s ease; user-select:none;}
+  .die:hover{transform: translateY(-2px);}
+  .die.selected{border-color:#fff; box-shadow: 0 0 0 3px rgba(255,255,255,0.4);}
+  .die.disabled{opacity:0.35; cursor:not-allowed;}
+  .die.small{width:38px;height:38px;font-size:15px;border-radius:8px;}
+
+  .c-rojo{background:var(--c-rojo);} .c-azul{background:var(--c-azul);}
+  .c-amarillo{background:var(--c-amarillo); color:#2a1c04;} .c-verde{background:var(--c-verde); color:#2a1c04;}
+  .c-morado{background:var(--c-morado);} .c-naranja{background:var(--c-naranja);} .c-negro{background:var(--c-negro);}
+
+  .actions{display:flex; justify-content:center; gap: 10px; flex-wrap:wrap; margin-bottom: 18px;}
+  button.action-btn{ font-family:inherit; font-size: 13.5px; font-weight:600; padding: 10px 18px; border-radius: 999px;
+    border: none; cursor:pointer; background: var(--panel); color: var(--ink); transition: transform .1s ease, background .15s ease;}
+  button.action-btn:hover:not(:disabled){transform: translateY(-1px); background:#fff;}
+  button.action-btn:disabled{opacity:0.35; cursor:not-allowed;}
+  button.action-btn.primary{background: var(--amber);}
+  button.action-btn.primary:hover:not(:disabled){background:#f0b653;}
+  button.action-btn.ghost{background:transparent; color:#f2e4c0; border:1px solid rgba(255,255,255,0.3);}
+
+  .hint{text-align:center; font-size:12.5px; color:#f2e4c0; min-height:16px; margin-bottom:12px;}
+
+  .boards{display:flex; gap: 18px; justify-content:center; flex-wrap:wrap;}
+  .board-panel{ background: var(--panel); color: var(--ink); border-radius: 16px; padding: 14px 16px 16px; width: 300px;
+    box-shadow: 0 10px 0 rgba(0,0,0,0.2);}
+  .board-panel.active{outline: 3px solid var(--amber); outline-offset:3px;}
+  .board-head{display:flex; justify-content:space-between; align-items:baseline; margin-bottom:8px;}
+  .board-head h2{font-size:15px; margin:0;}
+  .board-score{font-size:12px; color:var(--ink-soft); font-weight:600;}
+
+  .grid{display:grid; grid-template-columns: repeat(5, 1fr); gap: 5px;}
+  .cell{ aspect-ratio: 1/1; border-radius: 7px; background: #e7ddc7; border: 1px dashed #c9bd9d;
+    display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:700; color:#fff; cursor:default; position:relative;}
+  .cell.empty.valid{ background: #d8ecd9; border: 2px solid var(--ok); cursor:pointer;}
+  .cell.empty.valid:hover{background:#c3e3c6;}
+  .cell.filled{border-style:solid; border-color: rgba(0,0,0,0.15);}
+  .cell.redacted{ background: repeating-linear-gradient(45deg, #2a2724, #2a2724 4px, #3a352f 4px, #3a352f 8px); border:1px solid #c1453c; cursor:not-allowed;}
+  .cell.special-black{ background: repeating-linear-gradient(45deg, #2a2724, #2a2724 4px, #3a352f 4px, #3a352f 8px); border:1px solid #6b6558; color:#fff; font-size:11px; cursor:default;}
+  .cell.special-black.valid{ cursor:pointer; border-color:var(--ok); border-width:2px;}
+  .cell.special-rank{ background:#fff3d6; border:2px dashed #b8801f; color:#b8801f; font-weight:800; cursor:default;}
+  .cell.special-rank.valid{ cursor:pointer; border-color:var(--ok); background:#e3f3e5;}
+  .cell.special-nation{ background:#fff; border:3px solid #999; cursor:default;}
+  .cell.special-nation.valid{ cursor:pointer; background:#e3f3e5;}
+  .cell.select-target{outline:2px solid var(--amber); cursor:pointer;}
+
+  .board-note{font-size:11px; color:var(--ink-soft); margin-top:8px; line-height:1.4;}
+  .group-breakdown{font-size:11px; color:var(--ink-soft); margin-top:6px; text-align:left; line-height:1.5;}
+  .group-breakdown b{color:var(--ink);}
+
+  .reshuffle-panel{ text-align:center; margin: 0 0 18px; background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.08);
+    border-radius: var(--radius); padding: 14px;}
+  .reshuffle-panel p{margin:0 0 8px; font-size:13px; color:#f2e4c0;}
+
+  .end-screen{ text-align:center; background: rgba(0,0,0,0.3); border-radius: var(--radius); padding: 22px; margin-bottom: 18px;}
+  .end-screen h2{margin-top:0; color:#f2e4c0; font-size:22px;}
+  .end-score-row{display:flex; justify-content:center; gap:24px; margin: 16px 0; flex-wrap:wrap;}
+  .end-score-row div{font-size:13px;}
+  .end-score-row .num{font-size:28px; font-weight:700; display:block;}
+
+  footer{text-align:center; font-size:11.5px; color:#6d786f; margin-top:30px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Split Loyalty</h1>
+    <p class="subtitle" id="modeSubtitle">Red de espías con lealtades divididas — modo local, mismo dispositivo</p>
+    <details class="rules">
+      <summary id="rulesSummary">❓ Ayuda de reglas</summary>
+      <div id="rulesBody"></div>
+    </details>
+  </header>
+
+  <div id="lobbyScreen" class="lobby">
+    <h2 id="lobbyTitle">Nueva Operación</h2>
+    <div class="player-count-row" id="langRow" style="margin-bottom:14px;"></div>
+    <p id="lobbyPlayerCountLabel">¿Cuántas agencias van a jugar?</p>
+    <div class="player-count-row" id="playerCountRow"></div>
+
+    <div style="margin:14px 0; text-align:left; border-top:1px solid var(--panel-line); padding-top:12px;">
+      <p id="mapModeLabel" style="font-weight:600; font-size:13.5px; margin:0 0 8px;">¿Qué tipo de dossier quieres usar?</p>
+      <label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer; margin-bottom:6px; font-size:12.5px;">
+        <input type="radio" name="mapMode" value="simple" checked onchange="setMapMode('simple')" style="margin-top:2px;">
+        <span id="mapModeSimpleLabel">Simple — solo las 2 casillas de dado negro</span>
+      </label>
+      <label style="display:flex; gap:8px; align-items:flex-start; cursor:pointer; font-size:12.5px;">
+        <input type="radio" name="mapMode" value="special" onchange="setMapMode('special')" style="margin-top:2px;">
+        <span id="mapModeSpecialLabel">Mapas especiales — + casilla de rango, de nación, y un corte interior (con draft inverso al inicio)</span>
+      </label>
+    </div>
+
+    <button class="big-btn" id="startBtn" onclick="startGame()">Iniciar Operación</button>
+
+    <div style="margin-top:16px; text-align:left; border-top:1px solid var(--panel-line); padding-top:12px;">
+      <label style="display:flex; align-items:center; gap:8px; font-weight:600; cursor:pointer; font-size:13.5px;">
+        <input type="checkbox" id="testModeCheckbox" onchange="toggleTestMode()">
+        <span id="testModeLabel">🧪 Modo de prueba: empezar con habilidades ya desbloqueadas</span>
+      </label>
+      <div id="testAbilitiesPanel" style="display:none; margin-top:10px;">
+        <p id="testModeDesc" style="font-size:11.5px; color:var(--ink-soft); margin:0 0 6px;"></p>
+        <div style="display:flex; gap:8px; margin-bottom:8px;">
+          <button type="button" onclick="selectAllTestAbilities(true)" id="testAllBtn" style="font-size:11px; padding:4px 8px; border-radius:6px; border:1px solid var(--ink-soft); background:#fff; cursor:pointer;">Todas</button>
+          <button type="button" onclick="selectAllTestAbilities(false)" id="testNoneBtn" style="font-size:11px; padding:4px 8px; border-radius:6px; border:1px solid var(--ink-soft); background:#fff; cursor:pointer;">Ninguna</button>
+        </div>
+        <div id="testAbilitiesGrid" style="display:grid; grid-template-columns:repeat(auto-fill,minmax(210px,1fr)); gap:6px; max-height:220px; overflow-y:auto; text-align:left; font-size:11.5px; padding-right:4px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="gameScreen" style="display:none;">
+    <div class="status-bar">
+      <span id="turnPill" class="turn-pill">Turno de Agencia 1</span>
+      <span class="bag-count" id="bagCount"></span>
+      <span class="log-line" id="logLine"></span>
+    </div>
+
+    <div class="missions-panel">
+      <div class="panel-title" id="missionsActiveLabel">Misiones activas</div>
+      <div class="mission-grid" id="missionsArea"></div>
+    </div>
+
+    <div class="abilities-panel">
+      <div class="panel-title"><span id="abilitiesOfLabel">Habilidades de Agencia</span> <span id="abilityPlayerLabel"></span></div>
+      <div class="ability-row" id="abilitiesArea"></div>
+      <div id="abilityModeArea"></div>
+    </div>
+
+    <div id="reshuffleArea"></div>
+
+    <div class="table-area" id="tableArea">
+      <div class="table-label" id="marketLabel">Mercado de espías</div>
+      <div class="dice-row" id="diceRow"></div>
+    </div>
+
+    <div class="hint" id="hintLine"></div>
+    <div class="actions" id="actionsRow"></div>
+    <div id="endArea"></div>
+    <div class="boards" id="boardsArea"></div>
+  </div>
+
+  <footer><span id="footerText">Prototipo de Split Loyalty — hecho para probar la red de espías, no el diseño final.</span> <span id="resetLink" style="text-decoration:underline; cursor:pointer;">Reiniciar operación</span></footer>
+</div>
+
+<script src="engine.js"></script>
+<script>
+function render(){ renderCore(); }
+
+function startGame(){
+  document.getElementById('lobbyScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  newGame(selectedPlayerCount, selectedMapMode);
+}
+
+function backToLobbyScreen(){
+  document.getElementById('gameScreen').style.display='none';
+  document.getElementById('lobbyScreen').style.display='block';
+  state = null;
+}
+
+document.getElementById('resetLink').addEventListener('click', ()=>{
+  if(state){ backToLobbyScreen(); }
+});
+
+window.setPlayerCount = setPlayerCount;
+window.setMapMode = setMapMode;
+window.pickDraftMap = pickDraftMap;
+window.setLang = setLang;
+window.startGame = startGame;
+window.toggleTestMode = toggleTestMode;
+window.toggleTestAbility = toggleTestAbility;
+window.selectAllTestAbilities = selectAllTestAbilities;
+window.onSelectTableDie = onSelectTableDie;
+window.onTakeSelected = onTakeSelected;
+window.onReshuffle = onReshuffle;
+window.onPickReshuffle = onPickReshuffle;
+window.placeNextPending = placeNextPending;
+window.activateAbility = activateAbility;
+window.cancelAbilityMode = cancelAbilityMode;
+window.confirmAbilityMode = confirmAbilityMode;
+window.onAbilityMarketClick = onAbilityMarketClick;
+window.onAbilityBoardClick = onAbilityBoardClick;
+window.adjustClearance = adjustClearance;
+window.backToLobbyScreen = backToLobbyScreen;
+
+initLangUI();
+applyStaticTranslations();
+initPlayerCountUI();
+initTestAbilitiesGrid();
+initRulesHelpExamples();
+
+</script>
+</body>
+</html>
